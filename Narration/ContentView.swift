@@ -2,20 +2,22 @@
 //  ContentView.swift
 //  Narration
 //
-//  Created by Christian  on 8/27/25.
+//  Home Health Narrative Generator - Main Interface
 //
 
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showingOnboarding = true
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        if showingOnboarding {
+            OnboardingView {
+                showingOnboarding = false
+            }
+        } else {
+            QuestionAnswerView()
         }
-        .padding()
     }
 }
 
