@@ -25,6 +25,8 @@ class SpeechRecognitionService: ObservableObject {
     private var whisperKit: WhisperKit?
     private var audioBuffer: [Float] = []
     private var lastTranscriptionTime: Date = Date()
+    private var lastSpeechTime: Date = Date()
+    private var silenceTimer: Timer?
     
     private init() {
         checkAuthorization()
@@ -107,17 +109,36 @@ class SpeechRecognitionService: ObservableObject {
                 }
                 
                 let avgLevel = sum / Float(channelDataCount)
-                if avgLevel > 0.01 {
-                    print("Audio level: \(avgLevel)")
+                
+                // Detect speech/silence
+                if avgLevel > 0.005 { // Speech detected
+                    self.lastSpeechTime = Date()
+                    
+                    // Cancel any existing silence timer
+                    DispatchQueue.main.async {
+                        self.silenceTimer?.invalidate()
+                        self.silenceTimer = nil
+                    }
+                    
+                    // Trigger streaming transcription every 2 seconds if we have audio
+                    let now = Date()
+                    if now.timeIntervalSince(self.lastTranscriptionTime) > 2.0 {
+                        self.lastTranscriptionTime = now
+                        Task { @MainActor in
+                            await self.performStreamingTranscription()
+                        }
+                    }
+                } else { // Silence detected
+                    // Start silence timer if not already started
+                    if self.silenceTimer == nil && self.isRecording {
+                        DispatchQueue.main.async {
+                            self.startSilenceTimer()
+                        }
+                    }
                 }
                 
-                // Trigger streaming transcription every 2 seconds if we have audio
-                let now = Date()
-                if now.timeIntervalSince(self.lastTranscriptionTime) > 2.0 && avgLevel > 0.005 {
-                    self.lastTranscriptionTime = now
-                    Task { @MainActor in
-                        await self.performStreamingTranscription()
-                    }
+                if avgLevel > 0.01 {
+                    print("Audio level: \(avgLevel)")
                 }
             }
             
@@ -139,6 +160,10 @@ class SpeechRecognitionService: ObservableObject {
     func stopRecording() {
         guard isRecording else { return }
         
+        // Stop silence timer
+        silenceTimer?.invalidate()
+        silenceTimer = nil
+        
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         audioFile = nil
@@ -151,6 +176,20 @@ class SpeechRecognitionService: ObservableObject {
         }
         
         try? AVAudioSession.sharedInstance().setActive(false)
+    }
+    
+    private func startSilenceTimer() {
+        silenceTimer?.invalidate()
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            
+            Task { @MainActor in
+                if self.isRecording {
+                    print("Auto-stopping recording due to 3 seconds of silence")
+                    self.stopRecording()
+                }
+            }
+        }
     }
     
     private func transcribeRecording() async {
@@ -179,10 +218,16 @@ class SpeechRecognitionService: ObservableObject {
             // Extract the transcribed text
             if let firstResult = results.first {
                 let text = firstResult.text
-                recognizedText = text.isEmpty ? "No speech detected" : text
-                print("Got text: '\(text)'")
+                
+                if text.contains("[BLANK_AUDIO]") || text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    recognizedText = "No audio recognized"
+                    print("Final transcription: No speech detected")
+                } else {
+                    recognizedText = text
+                    print("Got text: '\(text)'")
+                }
             } else {
-                recognizedText = "No transcription results"
+                recognizedText = "No audio recognized"
                 print("No results returned from WhisperKit")
             }
         } catch {
@@ -227,9 +272,14 @@ class SpeechRecognitionService: ObservableObject {
             print("Streaming transcription...")
             let results = try await whisperKit.transcribe(audioPath: tempURL.path)
             
-            if let result = results.first, !result.text.contains("[BLANK_AUDIO]") {
-                recognizedText = result.text
-                print("Streaming result: '\(result.text)'")
+            if let result = results.first {
+                if result.text.contains("[BLANK_AUDIO]") || result.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    // Don't update recognizedText for blank audio - keep previous text or empty
+                    print("Streaming detected blank/silent audio - ignoring")
+                } else {
+                    recognizedText = result.text
+                    print("Streaming result: '\(result.text)'")
+                }
             }
             
             // Clean up
@@ -244,6 +294,8 @@ class SpeechRecognitionService: ObservableObject {
     func clearText() {
         recognizedText = ""
         audioBuffer.removeAll()
+        silenceTimer?.invalidate()
+        silenceTimer = nil
     }
 }
 
