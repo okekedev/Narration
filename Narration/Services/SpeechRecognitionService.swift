@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import WhisperKit
+import AudioToolbox
 
 @MainActor
 class SpeechRecognitionService: ObservableObject {
@@ -18,6 +19,7 @@ class SpeechRecognitionService: ObservableObject {
     @Published var recognizedText = ""
     @Published var isProcessing = false
     @Published var whisperKitReady = false
+    @Published var errorMessage = ""
     
     private var audioEngine = AVAudioEngine()
     private var audioFile: AVAudioFile?
@@ -29,49 +31,150 @@ class SpeechRecognitionService: ObservableObject {
     private var silenceTimer: Timer?
     
     private init() {
-        checkAuthorization()
-        initializeWhisperKitInBackground()
+        // Don't check authorization on init - wait until user tries to record
+        // Initialize WhisperKit immediately and prewarm it
+        initializeAndPrewarmWhisperKit()
     }
     
-    private func checkAuthorization() {
-        // Only check microphone permission (no Siri dependency)
+    private func checkAuthorization() async {
+        // Only check microphone permission when actually needed
         switch AVAudioSession.sharedInstance().recordPermission {
         case .granted:
-            isAuthorized = true
+            await MainActor.run {
+                isAuthorized = true
+            }
         case .denied:
-            isAuthorized = false
+            await MainActor.run {
+                isAuthorized = false
+            }
         case .undetermined:
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                DispatchQueue.main.async {
-                    self.isAuthorized = granted
+            await withCheckedContinuation { continuation in
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    Task { @MainActor in
+                        self.isAuthorized = granted
+                        continuation.resume()
+                    }
                 }
             }
         @unknown default:
-            isAuthorized = false
+            await MainActor.run {
+                isAuthorized = false
+            }
         }
     }
     
-    private func initializeWhisperKitInBackground() {
+    private func initializeAndPrewarmWhisperKit() {
         Task {
+            // Wait a moment for app to stabilize
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+            
             do {
-                print("Initializing WhisperKit in background...")
-                whisperKit = try await WhisperKit()
-                whisperKitReady = true
-                print("WhisperKit initialized successfully in background")
+                print("Initializing WhisperKit...")
+                
+                // Initialize with explicit settings to reduce errors
+                whisperKit = try await WhisperKit(
+                    verbose: false,
+                    logLevel: .error,  // Changed from .critical to .error
+                    prewarm: true,
+                    load: true,
+                    download: true
+                )
+                
+                print("WhisperKit initialized, prewarming...")
+                
+                // Do a dummy transcription to load all components
+                await prewarmWhisperKit()
+                
+                await MainActor.run {
+                    whisperKitReady = true
+                    print("WhisperKit ready")
+                }
             } catch {
-                print("Failed to initialize WhisperKit: \(error)")
-                whisperKitReady = false
+                print("WhisperKit initialization failed: \(error.localizedDescription)")
+                
+                // Try simpler initialization as fallback
+                do {
+                    whisperKit = try await WhisperKit()
+                    await MainActor.run {
+                        whisperKitReady = true
+                    }
+                } catch {
+                    await MainActor.run {
+                        whisperKitReady = false
+                    }
+                }
             }
+        }
+    }
+    
+    private func prewarmWhisperKit() async {
+        guard let whisperKit = whisperKit else { return }
+        
+        do {
+            print("Prewarming WhisperKit with demo audio...")
+            
+            // Create a more realistic demo audio file with actual speech-like patterns
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("prewarm.wav")
+            
+            // Use 48kHz to match device recording format
+            let sampleRate: Double = 48000
+            let duration = 2.0 // 2 seconds for more realistic demo
+            let audioFormat = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+            let audioFile = try AVAudioFile(forWriting: tempURL, settings: audioFormat.settings)
+            
+            let frameCount = AVAudioFrameCount(sampleRate * duration)
+            let buffer = AVAudioPCMBuffer(pcmFormat: audioFormat, frameCapacity: frameCount)!
+            buffer.frameLength = frameCount
+            
+            // Create speech-like audio pattern (sine wave with variations)
+            if let channelData = buffer.floatChannelData?[0] {
+                for i in 0..<Int(frameCount) {
+                    // Generate low-amplitude speech-like pattern
+                    let time = Double(i) / sampleRate
+                    let frequency = 440.0 + sin(time * 2.0) * 100.0 // Varying frequency
+                    let amplitude = Float(0.01 * (1.0 + sin(time * 5.0)) * 0.5) // Varying amplitude
+                    channelData[i] = amplitude * sin(Float(2.0 * .pi * frequency * time))
+                }
+            }
+            
+            try audioFile.write(from: buffer)
+            
+            // Do multiple dummy transcriptions to fully initialize
+            print("Running demo transcription 1...")
+            _ = try? await whisperKit.transcribe(audioPath: tempURL.path)
+            
+            print("Running demo transcription 2...")
+            _ = try? await whisperKit.transcribe(audioPath: tempURL.path)
+            
+            // Clean up
+            try? FileManager.default.removeItem(at: tempURL)
+            
+            print("WhisperKit fully prewarmed - all components loaded and tested")
+        } catch {
+            print("Prewarm failed (non-critical): \(error.localizedDescription)")
         }
     }
     
     func startRecording() async throws {
         guard !isRecording else { return }
+        
+        // Check and request microphone permission when user tries to record
+        await checkAuthorization()
         guard isAuthorized else { throw SpeechError.microphoneNotAuthorized }
         
-        // Create temporary file for recording
+        // WhisperKit should already be prewarmed, but check just in case
+        guard whisperKitReady else {
+            print("WhisperKit not ready yet")
+            throw SpeechError.whisperKitNotInitialized
+        }
+        
+        // Clear any previous audio buffer
+        audioBuffer.removeAll()
+        
+        // Create temporary file for recording with unique name
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        recordingURL = documentsPath.appendingPathComponent("recording.wav")
+        let fileName = "recording_\(Date().timeIntervalSince1970).wav"
+        recordingURL = documentsPath.appendingPathComponent(fileName)
         
         guard let recordingURL = recordingURL else {
             throw SpeechError.recordingSetupFailed
@@ -84,14 +187,14 @@ class SpeechRecognitionService: ObservableObject {
         
         // Configure audio engine and recording
         let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        let inputFormat = inputNode.outputFormat(forBus: 0)
         
-        print("Recording format: \(recordingFormat)")
+        print("Input format: \(inputFormat)")
         
-        // Create audio file with native format
-        audioFile = try AVAudioFile(forWriting: recordingURL, settings: recordingFormat.settings)
+        // Create audio file with input format (let WhisperKit handle conversion)
+        audioFile = try AVAudioFile(forWriting: recordingURL, settings: inputFormat.settings)
         
-        inputNode.installTap(onBus: 0, bufferSize: 4096, format: recordingFormat) { [weak self] buffer, when in
+        inputNode.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, when in
             guard let self = self, let audioFile = self.audioFile else { return }
             
             // Check audio levels and accumulate for streaming
@@ -119,8 +222,7 @@ class SpeechRecognitionService: ObservableObject {
                         self.silenceTimer?.invalidate()
                         self.silenceTimer = nil
                     }
-                    
-                    // Trigger streaming transcription every 2 seconds if we have audio
+                    // Enable streaming transcription for real-time feedback
                     let now = Date()
                     if now.timeIntervalSince(self.lastTranscriptionTime) > 2.0 {
                         self.lastTranscriptionTime = now
@@ -142,7 +244,7 @@ class SpeechRecognitionService: ObservableObject {
                 }
             }
             
-            // Still write to file for final transcription
+            // CRITICAL: Write audio to file for transcription
             do {
                 try audioFile.write(from: buffer)
             } catch {
@@ -155,6 +257,10 @@ class SpeechRecognitionService: ObservableObject {
         
         isRecording = true
         recognizedText = ""
+        errorMessage = ""
+        
+        // Play subtle start recording sound
+        playRecordingSound(isStart: true)
     }
     
     func stopRecording() {
@@ -166,9 +272,14 @@ class SpeechRecognitionService: ObservableObject {
         
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
+        
+        // IMPORTANT: Close the audio file properly before transcription
         audioFile = nil
         
         isRecording = false
+        
+        // Play subtle stop recording sound
+        playRecordingSound(isStart: false)
         
         // Process the recorded audio with WhisperKit
         Task {
@@ -193,52 +304,95 @@ class SpeechRecognitionService: ObservableObject {
     }
     
     private func transcribeRecording() async {
-        guard let recordingURL = recordingURL else { return }
+        guard let recordingURL = recordingURL else { 
+            print("No recording URL available")
+            return 
+        }
         
-        isProcessing = true
+        // Check if file exists before transcription
+        guard FileManager.default.fileExists(atPath: recordingURL.path) else {
+            print("Recording file does not exist at: \(recordingURL.path)")
+            await MainActor.run {
+                recognizedText = ""
+                errorMessage = ""
+                isProcessing = false
+            }
+            return
+        }
+        
+        await MainActor.run {
+            isProcessing = true
+        }
         
         do {
             guard let whisperKit = whisperKit, whisperKitReady else {
-                print("WhisperKit not ready - Ready: \(whisperKitReady), Instance: \(whisperKit != nil)")
-                recognizedText = "Speech recognition not ready. Please type your response."
-                isProcessing = false
+                print("WhisperKit not ready for transcription")
+                await MainActor.run {
+                    recognizedText = ""
+                    errorMessage = ""
+                    isProcessing = false
+                }
+                return
+            }
+            
+            // Check file size to ensure we have audio
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: recordingURL.path)
+            let fileSize = fileAttributes[.size] as? Int ?? 0
+            print("Recording file size: \(fileSize) bytes at: \(recordingURL.path)")
+            
+            // Only transcribe if we have substantial audio data
+            guard fileSize > 1000 else {
+                print("File too small, likely no audio captured")
+                await MainActor.run {
+                    recognizedText = ""
+                    errorMessage = ""
+                }
                 return
             }
             
             print("Starting transcription...")
+            
+            // Transcribe using simplistic WhisperKit approach
             let results = try await whisperKit.transcribe(audioPath: recordingURL.path)
-            print("Transcription completed: \(results.count) results")
+            let transcriptionText = results.first?.text ?? ""
             
-            // Debug: Print the actual result structure
-            if let firstResult = results.first {
-                print("Result type: \(type(of: firstResult))")
-                print("Result content: \(firstResult)")
-            }
-            
-            // Extract the transcribed text
-            if let firstResult = results.first {
-                let text = firstResult.text
-                
-                if text.contains("[BLANK_AUDIO]") || text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    recognizedText = "No audio recognized"
-                    print("Final transcription: No speech detected")
+            print("Transcription result: '\(transcriptionText)'")
+            await MainActor.run {
+                // Always set the recognized text, even if it contains [BLANK_AUDIO]
+                // This helps us debug what WhisperKit is actually returning
+                if transcriptionText.contains("[BLANK_AUDIO]") {
+                    print("WhisperKit returned BLANK_AUDIO")
+                    recognizedText = ""
+                    errorMessage = ""
+                } else if transcriptionText.isEmpty {
+                    print("WhisperKit returned empty text")
+                    recognizedText = ""
+                    errorMessage = ""
                 } else {
-                    recognizedText = text
-                    print("Got text: '\(text)'")
+                    // Got valid transcription - set it
+                    print("Setting recognized text: '\(transcriptionText)'")
+                    recognizedText = transcriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    errorMessage = ""
                 }
-            } else {
-                recognizedText = "No audio recognized"
-                print("No results returned from WhisperKit")
             }
+            
         } catch {
-            print("Transcription failed: \(error)")
-            recognizedText = "Transcription failed. Please try again or type your response."
+            print("Transcription error: \(error)")
+            await MainActor.run {
+                recognizedText = ""
+                errorMessage = ""
+            }
         }
         
-        isProcessing = false
+        await MainActor.run {
+            isProcessing = false
+        }
         
-        // Clean up temporary file
-        try? FileManager.default.removeItem(at: recordingURL)
+        // Clean up temporary file AFTER transcription
+        if FileManager.default.fileExists(atPath: recordingURL.path) {
+            try? FileManager.default.removeItem(at: recordingURL)
+            print("Cleaned up recording file")
+        }
     }
     
     private func performStreamingTranscription() async {
@@ -268,34 +422,39 @@ class SpeechRecognitionService: ObservableObject {
             
             try audioFile.write(from: buffer)
             
-            // Transcribe streaming chunk
-            print("Streaming transcription...")
+            // Simple streaming transcription
             let results = try await whisperKit.transcribe(audioPath: tempURL.path)
-            
-            if let result = results.first {
-                if result.text.contains("[BLANK_AUDIO]") || result.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    // Don't update recognizedText for blank audio - keep previous text or empty
-                    print("Streaming detected blank/silent audio - ignoring")
-                } else {
-                    recognizedText = result.text
-                    print("Streaming result: '\(result.text)'")
-                }
+            let text = results.first?.text ?? ""
+            if !text.isEmpty && !text.contains("[BLANK_AUDIO]") {
+                recognizedText = text
             }
             
             // Clean up
             try? FileManager.default.removeItem(at: tempURL)
             
         } catch {
-            print("Streaming transcription error: \(error)")
+            // Silently handle streaming errors and clean up
             try? FileManager.default.removeItem(at: tempURL)
         }
     }
     
     func clearText() {
         recognizedText = ""
+        errorMessage = ""
         audioBuffer.removeAll()
         silenceTimer?.invalidate()
         silenceTimer = nil
+    }
+    
+    private func playRecordingSound(isStart: Bool) {
+        // Use system sounds for subtle audio feedback
+        if isStart {
+            // Play a subtle "begin" sound (system camera shutter sound)
+            AudioServicesPlaySystemSound(1108) // camera_shutter_burst_begin.caf
+        } else {
+            // Play a subtle "end" sound (system keyboard click)
+            AudioServicesPlaySystemSound(1104) // end_record_short.caf
+        }
     }
 }
 

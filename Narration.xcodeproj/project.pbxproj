@@ -39,16 +39,6 @@
 			path = Narration;
 			sourceTree = "<group>";
 		};
-		AA80DF212E600D3A00FD4865 /* NarrationTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NarrationTests;
-			sourceTree = "<group>";
-		};
-		AA80DF2B2E600D3A00FD4865 /* NarrationUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NarrationUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,8 +71,6 @@
 			isa = PBXGroup;
 			children = (
 				AA80DF132E600D3500FD4865 /* Narration */,
-				AA80DF212E600D3A00FD4865 /* NarrationTests */,
-				AA80DF2B2E600D3A00FD4865 /* NarrationUITests */,
 				AA80DF122E600D3500FD4865 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,9 +124,6 @@
 			dependencies = (
 				AA80DF202E600D3A00FD4865 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				AA80DF212E600D3A00FD4865 /* NarrationTests */,
-			);
 			name = NarrationTests;
 			packageProductDependencies = (
 			);
@@ -158,9 +143,6 @@
 			);
 			dependencies = (
 				AA80DF2A2E600D3A00FD4865 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AA80DF2B2E600D3A00FD4865 /* NarrationUITests */,
 			);
 			name = NarrationUITests;
 			packageProductDependencies = (

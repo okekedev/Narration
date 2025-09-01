@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/Users/christian/Desktop/Narrative/**)",
+      "Read(/Users/christian/Desktop/Narrative/**)",
+      "Read(/Users/christian/Desktop/Narrative/**)",
+      "Read(/Users/christian/Desktop/**)",
+      "Bash(open:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

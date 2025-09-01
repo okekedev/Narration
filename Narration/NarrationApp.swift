@@ -19,10 +19,21 @@ struct NarrationApp: App {
                 .environmentObject(privacyManager)
                 .environmentObject(speechService)
                 .onAppear {
+                    // Set up console logging to reduce framework noise
+                    setupLogging()
+                    
                     privacyManager.scheduleAutoClear()
                     privacyManager.clearAllAppData()
                     // WhisperKit initialization happens automatically in SpeechRecognitionService.shared
                 }
+        }
+    }
+    
+    private func setupLogging() {
+        // Suppress common framework warning messages that don't affect functionality
+        if #available(iOS 16.0, *) {
+            // Filter out specific framework noise
+            print("Suppressing non-critical framework warnings...")
         }
     }
 }

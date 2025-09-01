@@ -10,44 +10,37 @@ import Foundation
 struct Question: Identifiable, Equatable {
     let id = UUID()
     let number: Int
-    let prompt: String
-    let placeholder: String
+    var prompt: String
+    let placeholder: String = ""
     
-    static let homeHealthQuestions = [
+    static var homeHealthQuestions = [
         Question(
             number: 1,
-            prompt: "What is the patient's name?",
-            placeholder: "Enter patient's full name"
+            prompt: "Who did you visit and what was their condition?"
         ),
         Question(
             number: 2,
-            prompt: "How is the patient's mental status and alertness?",
-            placeholder: "Describe orientation, alertness, and cognitive status"
+            prompt: "What did you observe during your assessment?"
         ),
         Question(
             number: 3,
-            prompt: "How is the patient's mobility and safety?",
-            placeholder: "Describe ambulation, transfers, fall risk, and safety concerns"
+            prompt: "How was the patient's mobility and daily functioning?"
         ),
         Question(
             number: 4,
-            prompt: "What is the medication compliance status?",
-            placeholder: "Describe medication adherence and any issues"
+            prompt: "What care or treatments did you provide?"
         ),
         Question(
             number: 5,
-            prompt: "Were any treatments or wound care performed?",
-            placeholder: "Describe treatments, wound care, or procedures performed"
+            prompt: "How did the patient respond to your care?"
         ),
         Question(
             number: 6,
-            prompt: "What patient education was provided?",
-            placeholder: "Describe teaching provided and patient understanding"
+            prompt: "What education or teaching did you provide?"
         ),
         Question(
             number: 7,
-            prompt: "What is the plan for the next visit?",
-            placeholder: "Describe follow-up plans and next visit objectives"
+            prompt: "What are the next steps and follow-up plans?"
         )
     ]
 }
