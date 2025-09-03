@@ -10,8 +10,8 @@ import SwiftUI
 struct ContentView: View {
     @State private var isShowingLaunchScreen = true
     @State private var hasPreInitialized = false
-    @StateObject private var session = VisitSession()
-    @EnvironmentObject var speechService: SpeechRecognitionService
+    @State private var session = VisitSession()
+    @State private var speechService = SpeechRecognitionService.shared
     
     var body: some View {
         ZStack {
@@ -22,7 +22,7 @@ struct ContentView: View {
                 NarrativeView(session: session)
                     .transition(.opacity)
                     .onAppear {
-                        // Start 10-minute session timer automatically when app loads
+                        // Initialize new session when app loads
                         session.startNewSession()
                     }
             }
@@ -37,6 +37,13 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.5), value: isShowingLaunchScreen)
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ResetToLaunchScreen"))) { _ in
+            // Reset app to launch screen when background timer expires
+            isShowingLaunchScreen = true
+            hasPreInitialized = false
+            session = VisitSession() // Reset session
+            speechService.clearText()
+        }
     }
     
     private func preInitializeComponents() {
@@ -54,24 +61,8 @@ struct ContentView: View {
     
     @MainActor
     private func triggerHiddenDemoRecording() async {
-        // This silently initializes the audio system
-        do {
-            // Start and immediately stop recording to initialize audio components
-            try await speechService.startRecording()
-            
-            // Wait briefly
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-            
-            // Stop recording
-            speechService.stopRecording()
-            
-            // Clear any text that might have been generated
-            speechService.clearText()
-            
-            print("Audio system pre-initialized")
-        } catch {
-            print("Pre-initialization skipped: \(error.localizedDescription)")
-        }
+        // Swift 6 - no pre-initialization needed, just mark as ready
+        print("App systems ready")
     }
 }
 

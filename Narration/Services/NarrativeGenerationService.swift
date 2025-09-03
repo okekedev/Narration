@@ -11,8 +11,9 @@ import Foundation
 class NarrativeGenerationService: ObservableObject {
     
     func generateNarrative(responses: [String]) async throws -> String {
-        guard responses.count == 7 else {
-            throw NarrativeError.invalidResponseCount
+        // Allow any number of responses, but expect at least one
+        guard !responses.isEmpty else {
+            return "No responses provided."
         }
         
         // No processing delay needed for simple concatenation

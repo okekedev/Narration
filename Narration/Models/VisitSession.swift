@@ -15,10 +15,6 @@ class VisitSession: ObservableObject {
     @Published var currentQuestionIndex = 0
     @Published var generatedNarrative = ""
     @Published var isGenerating = false
-    @Published var sessionTimeRemaining = 600 // 10 minutes in seconds
-    @Published var isSessionActive = false
-    
-    private var sessionTimer: Timer?
     
     var currentQuestion: Question {
         questions[currentQuestionIndex]
@@ -34,9 +30,13 @@ class VisitSession: ObservableObject {
     
     var progress: Double {
         let total = questions.count
-        guard total > 0 else { return 0 }
+        guard total > 0 else { return 0.0 }
         let current = max(0, min(total - 1, currentQuestionIndex))
-        return Double(current + 1) / Double(total)
+        let progressValue = Double(current + 1) / Double(total)
+        
+        // Ensure we never return NaN or invalid values
+        guard progressValue.isFinite && !progressValue.isNaN else { return 0.0 }
+        return min(max(progressValue, 0.0), 1.0) // Clamp between 0 and 1
     }
     
     func moveToNext() {
@@ -53,7 +53,6 @@ class VisitSession: ObservableObject {
     
     func startNewSession() {
         clearSession()
-        startSessionTimer()
     }
     
     func clearSession() {
@@ -61,28 +60,8 @@ class VisitSession: ObservableObject {
         currentQuestionIndex = 0
         generatedNarrative = ""
         isGenerating = false
-        stopSessionTimer()
     }
     
-    private func startSessionTimer() {
-        sessionTimeRemaining = 600
-        isSessionActive = true
-        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            
-            if self.sessionTimeRemaining > 0 {
-                self.sessionTimeRemaining = max(0, self.sessionTimeRemaining - 1)
-            } else {
-                self.stopSessionTimer()
-            }
-        }
-    }
-    
-    private func stopSessionTimer() {
-        sessionTimer?.invalidate()
-        sessionTimer = nil
-        isSessionActive = false
-    }
     
     func formatTime(_ seconds: Int) -> String {
         let minutes = seconds / 60
@@ -90,11 +69,6 @@ class VisitSession: ObservableObject {
         return String(format: "%d:%02d", minutes, remainingSeconds)
     }
     
-    deinit {
-        Task { @MainActor in
-            stopSessionTimer()
-        }
-    }
     
     func allQuestionsAnswered() -> Bool {
         !responses.contains(where: { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })

@@ -10,14 +10,12 @@ import SwiftUI
 
 @main
 struct NarrationApp: App {
-    @StateObject private var privacyManager = PrivacyManager.shared
-    @StateObject private var speechService = SpeechRecognitionService.shared
+    @State private var privacyManager = PrivacyManager.shared
+    @State private var speechService = SpeechRecognitionService.shared
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(privacyManager)
-                .environmentObject(speechService)
                 .onAppear {
                     // Set up console logging to reduce framework noise
                     setupLogging()
