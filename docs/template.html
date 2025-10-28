@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Narration Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .features {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📋</div>
+        <h1>Clinical Documentation Template</h1>
+        <p class="subtitle">Import this template into Narration</p>
+
+        <div id="app-check" class="status info">
+            <div class="loading"></div> Checking for Narration app...
+        </div>
+
+        <div id="app-installed" style="display:none;">
+            <div class="status success">
+                ✓ Opening in Narration app...
+            </div>
+            <p style="color: #666; font-size: 14px;">If the app didn't open, <a href="#" id="retry-link" style="color: #667eea;">tap here to try again</a></p>
+        </div>
+
+        <div id="app-not-installed" style="display:none;">
+            <div class="status info">
+                Narration app not detected
+            </div>
+            <p style="margin-bottom: 20px; color: #666;">Download Narration to import and use this clinical documentation template.</p>
+            <a href="https://apps.apple.com/app/narration" class="button">
+                Download from App Store
+            </a>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎤</div>
+                    <span>Voice-to-text clinical documentation</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <span>HIPAA-compliant, on-device processing</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📱</div>
+                    <span>Custom templates with CloudKit sync</span>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <span>Fast, offline-ready workflow</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Narration - Clinical Documentation Made Simple
+        </div>
+    </div>
+
+    <script>
+        // Get template data from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const templateData = urlParams.get('data');
+
+        if (!templateData) {
+            // No template data, redirect to home
+            window.location.href = '/';
+        }
+
+        // Build the app URL
+        const appURL = `narration://template?data=${templateData}`;
+        const universalLink = window.location.href;
+
+        // Try to open in app
+        let appOpened = false;
+
+        // Attempt 1: Try custom scheme
+        window.location.href = appURL;
+
+        // Wait to see if app opens
+        setTimeout(() => {
+            if (!document.hidden) {
+                // Still on page, app probably not installed
+                document.getElementById('app-check').style.display = 'none';
+                document.getElementById('app-not-installed').style.display = 'block';
+            } else {
+                // Page hidden, app probably opened
+                appOpened = true;
+                document.getElementById('app-check').style.display = 'none';
+                document.getElementById('app-installed').style.display = 'block';
+            }
+        }, 1500);
+
+        // Listen for page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && !appOpened) {
+                // User came back to page, app didn't open
+                document.getElementById('app-check').style.display = 'none';
+                document.getElementById('app-not-installed').style.display = 'block';
+            }
+        });
+
+        // Retry link
+        document.getElementById('retry-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = appURL;
+        });
+
+        // iOS 9+ Universal Links support
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+            // Try universal link after a delay
+            setTimeout(() => {
+                if (!appOpened) {
+                    window.location.href = universalLink;
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>

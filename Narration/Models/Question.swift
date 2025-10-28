@@ -7,12 +7,19 @@
 
 import Foundation
 
-struct Question: Identifiable, Equatable {
-    let id = UUID()
-    let number: Int
+struct Question: Identifiable, Equatable, Codable, Hashable {
+    var id: UUID
+    var number: Int
     var prompt: String
     var sectionTitle: String
-    let placeholder: String = ""
+    var placeholder: String = ""
+
+    init(id: UUID = UUID(), number: Int, prompt: String, sectionTitle: String) {
+        self.id = id
+        self.number = number
+        self.prompt = prompt
+        self.sectionTitle = sectionTitle
+    }
     
     static let homeHealthQuestions = [
         Question(

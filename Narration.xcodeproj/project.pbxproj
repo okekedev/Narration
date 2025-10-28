@@ -10,32 +10,26 @@
 		AA80DF6F2E60248400FD4865 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = AA80DF6E2E60248400FD4865 /* WhisperKit */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		AA80DF1F2E600D3A00FD4865 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AA80DF092E600D3500FD4865 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AA80DF102E600D3500FD4865;
-			remoteInfo = Narration;
-		};
-		AA80DF292E600D3A00FD4865 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AA80DF092E600D3500FD4865 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AA80DF102E600D3500FD4865;
-			remoteInfo = Narration;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		AA80DF112E600D3500FD4865 /* Narration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Narration.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA80DF1E2E600D3A00FD4865 /* NarrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NarrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA80DF282E600D3A00FD4865 /* NarrationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NarrationUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA80DF702E60248500FD4866 /* Exceptions for "Narration" folder in "Narration" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AA80DF102E600D3500FD4865 /* Narration */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AA80DF132E600D3500FD4865 /* Narration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AA80DF702E60248500FD4866 /* Exceptions for "Narration" folder in "Narration" target */,
+			);
 			path = Narration;
 			sourceTree = "<group>";
 		};
@@ -47,20 +41,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA80DF6F2E60248400FD4865 /* WhisperKit in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA80DF1B2E600D3A00FD4865 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA80DF252E600D3A00FD4865 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,8 +59,6 @@
 			isa = PBXGroup;
 			children = (
 				AA80DF112E600D3500FD4865 /* Narration.app */,
-				AA80DF1E2E600D3A00FD4865 /* NarrationTests.xctest */,
-				AA80DF282E600D3A00FD4865 /* NarrationUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -111,46 +89,6 @@
 			productReference = AA80DF112E600D3500FD4865 /* Narration.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AA80DF1D2E600D3A00FD4865 /* NarrationTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AA80DF352E600D3A00FD4865 /* Build configuration list for PBXNativeTarget "NarrationTests" */;
-			buildPhases = (
-				AA80DF1A2E600D3A00FD4865 /* Sources */,
-				AA80DF1B2E600D3A00FD4865 /* Frameworks */,
-				AA80DF1C2E600D3A00FD4865 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AA80DF202E600D3A00FD4865 /* PBXTargetDependency */,
-			);
-			name = NarrationTests;
-			packageProductDependencies = (
-			);
-			productName = NarrationTests;
-			productReference = AA80DF1E2E600D3A00FD4865 /* NarrationTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		AA80DF272E600D3A00FD4865 /* NarrationUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AA80DF382E600D3A00FD4865 /* Build configuration list for PBXNativeTarget "NarrationUITests" */;
-			buildPhases = (
-				AA80DF242E600D3A00FD4865 /* Sources */,
-				AA80DF252E600D3A00FD4865 /* Frameworks */,
-				AA80DF262E600D3A00FD4865 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AA80DF2A2E600D3A00FD4865 /* PBXTargetDependency */,
-			);
-			name = NarrationUITests;
-			packageProductDependencies = (
-			);
-			productName = NarrationUITests;
-			productReference = AA80DF282E600D3A00FD4865 /* NarrationUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -163,14 +101,6 @@
 				TargetAttributes = {
 					AA80DF102E600D3500FD4865 = {
 						CreatedOnToolsVersion = 16.4;
-					};
-					AA80DF1D2E600D3A00FD4865 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = AA80DF102E600D3500FD4865;
-					};
-					AA80DF272E600D3A00FD4865 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = AA80DF102E600D3500FD4865;
 					};
 				};
 			};
@@ -192,28 +122,12 @@
 			projectRoot = "";
 			targets = (
 				AA80DF102E600D3500FD4865 /* Narration */,
-				AA80DF1D2E600D3A00FD4865 /* NarrationTests */,
-				AA80DF272E600D3A00FD4865 /* NarrationUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AA80DF0F2E600D3500FD4865 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA80DF1C2E600D3A00FD4865 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA80DF262E600D3A00FD4865 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -230,34 +144,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AA80DF1A2E600D3A00FD4865 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA80DF242E600D3A00FD4865 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		AA80DF202E600D3A00FD4865 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AA80DF102E600D3500FD4865 /* Narration */;
-			targetProxy = AA80DF1F2E600D3A00FD4865 /* PBXContainerItemProxy */;
-		};
-		AA80DF2A2E600D3A00FD4865 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AA80DF102E600D3500FD4865 /* Narration */;
-			targetProxy = AA80DF292E600D3A00FD4865 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA80DF302E600D3A00FD4865 /* Debug */ = {
@@ -384,12 +271,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Narration/Narration.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = TUG3BHLSM4;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Narration/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Use your voice for hands-free clinical documentation. \n  Microphone access lets you speak your responses naturally.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Convert your voice to text instantly for faster clinical documentation. \n  All speech processing happens entirely on your device - no audio data is \n  sent anywhere.";
@@ -419,12 +308,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Narration/Narration.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = TUG3BHLSM4;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Narration/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Use your voice for hands-free clinical documentation. \n  Microphone access lets you speak your responses naturally.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Convert your voice to text instantly for faster clinical documentation. \n  All speech processing happens entirely on your device - no audio data is \n  sent anywhere.";
@@ -449,74 +340,6 @@
 			};
 			name = Release;
 		};
-		AA80DF362E600D3A00FD4865 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = okekedev.NarrationTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Narration.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Narration";
-			};
-			name = Debug;
-		};
-		AA80DF372E600D3A00FD4865 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = okekedev.NarrationTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Narration.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Narration";
-			};
-			name = Release;
-		};
-		AA80DF392E600D3A00FD4865 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = okekedev.NarrationUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Narration;
-			};
-			name = Debug;
-		};
-		AA80DF3A2E600D3A00FD4865 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = okekedev.NarrationUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Narration;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -534,24 +357,6 @@
 			buildConfigurations = (
 				AA80DF332E600D3A00FD4865 /* Debug */,
 				AA80DF342E600D3A00FD4865 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AA80DF352E600D3A00FD4865 /* Build configuration list for PBXNativeTarget "NarrationTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AA80DF362E600D3A00FD4865 /* Debug */,
-				AA80DF372E600D3A00FD4865 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AA80DF382E600D3A00FD4865 /* Build configuration list for PBXNativeTarget "NarrationUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AA80DF392E600D3A00FD4865 /* Debug */,
-				AA80DF3A2E600D3A00FD4865 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

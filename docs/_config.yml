@@ -1,0 +1,9 @@
+# GitHub Pages configuration for Narration
+
+# Ensure .well-known directory is included
+include:
+  - .well-known
+
+# Set correct MIME types
+plugins:
+  - jekyll-optional-front-matter

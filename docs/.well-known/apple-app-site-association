@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TUG3BHLSM4.okekedev.Narration",
+        "paths": ["/template", "/template/*"]
+      }
+    ]
+  }
+}

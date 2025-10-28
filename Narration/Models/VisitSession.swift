@@ -10,11 +10,31 @@ import SwiftUI
 
 @MainActor
 class VisitSession: ObservableObject {
-    @Published var questions = Question.homeHealthQuestions
-    @Published var responses: [String] = Array(repeating: "", count: 7)
+    @Published var questions: [Question] = []
+    @Published var responses: [String] = []
     @Published var currentQuestionIndex = 0
     @Published var generatedNarrative = ""
     @Published var isGenerating = false
+
+    private var templateManager = TemplateManager.shared
+
+    init() {
+        loadQuestionsFromTemplate()
+    }
+
+    func loadQuestionsFromTemplate() {
+        if let template = templateManager.selectedTemplate {
+            questions = template.questions
+            // Resize responses array to match question count
+            if responses.count != questions.count {
+                responses = Array(repeating: "", count: questions.count)
+            }
+        } else {
+            // Fallback to default questions
+            questions = Question.homeHealthQuestions
+            responses = Array(repeating: "", count: 7)
+        }
+    }
     
     var currentQuestion: Question {
         questions[currentQuestionIndex]
@@ -56,7 +76,8 @@ class VisitSession: ObservableObject {
     }
     
     func clearSession() {
-        responses = Array(repeating: "", count: 7)
+        loadQuestionsFromTemplate() // Reload questions from current template
+        responses = Array(repeating: "", count: questions.count)
         currentQuestionIndex = 0
         generatedNarrative = ""
         isGenerating = false

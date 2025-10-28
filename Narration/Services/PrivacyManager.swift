@@ -103,12 +103,19 @@ class PrivacyManager: ObservableObject {
     private func startBackgroundTimer() {
         // Cancel any existing timer
         cancelBackgroundTimer()
-        
+
         // Request background task to keep app alive briefly
         backgroundTaskID = UIApplication.shared.beginBackgroundTask { [weak self] in
-            // If background time expires, clear data immediately
-            Task { @MainActor in
-                self?.clearDataAndEndBackgroundTask()
+            // If background time expires, end the task immediately
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                // End background task first to avoid warning
+                if self.backgroundTaskID != .invalid {
+                    UIApplication.shared.endBackgroundTask(self.backgroundTaskID)
+                    self.backgroundTaskID = .invalid
+                }
+                // Then clear data
+                self.clearAllAppData()
             }
         }
         

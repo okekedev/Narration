@@ -14,9 +14,9 @@ struct NarrativeView: View {
     @State private var showingCopiedAlert = false
     @State private var editableNarrative = ""
     @State private var showingNarrativeView = false
-    @State private var showingQuestionsEdit = false
+    @State private var showingTemplates = false
     @State private var elementsVisible = false
-    
+
     var body: some View {
         NavigationStack {
             if showingNarrativeView {
@@ -25,8 +25,8 @@ struct NarrativeView: View {
                 questionsView
             }
         }
-        .sheet(isPresented: $showingQuestionsEdit) {
-            QuestionsEditView(session: session)
+        .sheet(isPresented: $showingTemplates) {
+            TemplateListView()
         }
         .alert("Copied!", isPresented: $showingCopiedAlert) {
             Button("OK") { }
@@ -51,12 +51,13 @@ struct NarrativeView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button("Questions") {
-                    showingQuestionsEdit = true
+                Button(action: {
+                    showingTemplates = true
+                }) {
+                    Image(systemName: "line.3.horizontal")
                 }
-                .foregroundColor(.blue)
             }
-            
+
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("New") {
                     newSession()
